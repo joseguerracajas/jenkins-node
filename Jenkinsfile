@@ -29,6 +29,8 @@ pipeline {
         stage('Push to Docker Hub') {
             steps {
                 script {
+                    // Tag the Docker image
+                    docker.image(DOCKER_IMAGE).tag('latest')
                     // Push Docker image to Docker Hub
                     docker.withRegistry('https://index.docker.io/v1/', 'dockerhub-credentials-id') {
                         docker.image(DOCKER_IMAGE).push('latest')
