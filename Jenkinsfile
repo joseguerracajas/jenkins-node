@@ -32,7 +32,7 @@ pipeline {
                     script {
                         sh """
                         az login --service-principal -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET --tenant $AZURE_TENANT_ID
-                        az webapp create --resource-group ${AZURE_RESOURCE_GROUP} --plan ${AZURE_WEBAPP_NAME} --name ${AZURE_WEBAPP_NAME} --deployment-container-image-name ${DOCKER_IMAGE}:latest
+                        az webapp create --resource-group ${AZURE_RESOURCE_GROUP} --plan ASP-Jenkinstest-9070 --name ${AZURE_WEBAPP_NAME} --deployment-container-image-name ${DOCKER_IMAGE}:latest
                         """
                     }
                 }
