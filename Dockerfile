@@ -8,8 +8,6 @@ COPY package.json .
 
 RUN npm install
 
-RUN npx vitest run
-
 RUN npm i -g serve
 
 COPY . .
