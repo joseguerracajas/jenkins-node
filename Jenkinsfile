@@ -2,45 +2,38 @@ pipeline {
     agent any
 
     environment {
-        AZURE_CREDENTIALS = credentials('azure-service-principal')
-        NODEJS_VERSION = '18.20.2'
+        DOCKER_IMAGE = "joseguerracajas/reactjenkins"
+        AZURE_WEBAPP_NAME = "Reactjenkinstest"
+        AZURE_RESOURCE_GROUP = "Jenkinstest"
     }
 
     stages {
-        stage('Checkout') {
-            steps {
-                git 'https://tu-repositorio.git'
-            }
-        }
-
-        stage('Install Node.js') {
+        stage('Build') {
             steps {
                 script {
-                    def nodeHome = tool name: 'NodeJS', type: 'NodeJSInstallation'
-                    env.PATH = "${nodeHome}/bin:${env.PATH}"
+                    docker.build(DOCKER_IMAGE)
                 }
             }
         }
 
-        stage('Install Dependencies') {
+        stage('Push to Docker Hub') {
             steps {
-                sh 'npm install'
-            }
-        }
-
-        stage('Build') {
-            steps {
-                sh 'npm run build'
+                script {
+                    docker.withRegistry('https://index.docker.io/v1/', 'dockerhub-credentials-id') {
+                        docker.image(DOCKER_IMAGE).push('latest')
+                    }
+                }
             }
         }
 
         stage('Deploy to Azure') {
             steps {
-                withCredentials([azureServicePrincipal(credentialsId: 'azure-service-principal')]) {
-                    sh '''
-                        az login --service-principal -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET --tenant $AZURE_TENANT_ID
-                        az webapp deployment source config-zip --resource-group <tu-grupo-de-recursos> --name <tu-app-service> --src build.zip
-                    '''
+                withCredentials([azureServicePrincipal(credentialsId: 'azure-credentials-id')]) {
+                    script {
+                        sh """
+                        az webapp create --resource-group ${AZURE_RESOURCE_GROUP} --plan ${AZURE_WEBAPP_NAME}-plan --name ${AZURE_WEBAPP_NAME} --deployment-container-image-name ${DOCKER_IMAGE}:latest
+                        """
+                    }
                 }
             }
         }
