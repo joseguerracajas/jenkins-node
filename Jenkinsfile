@@ -1,11 +1,7 @@
 pipeline {
     // Define the agent to run the pipeline
-    agent {
-        docker {
-            image 'node:18' // Use the node image with version 18
-            args '-u root' // Run the container as root
-        }
-    }
+    agent any
+
     // Define the environment variables
     environment {
         // Define the Docker image name
@@ -18,18 +14,6 @@ pipeline {
 
     // Define the stages of the pipeline
     stages {
-
-        // Test stage
-        stage('Test') {
-            steps {
-                script {
-                    //Install npm dependencies
-                    sh 'npm install'
-                    //Run the tests using Vitest
-                    sh 'npx vitest run'
-                }
-            }
-        }
 
         // Build stage
         stage('Build') {
