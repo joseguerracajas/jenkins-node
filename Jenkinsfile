@@ -1,7 +1,11 @@
 pipeline {
     // Define the agent to run the pipeline
-    agent any
-
+    agent {
+        docker {
+            image 'node:18' // Use the node image with version 18
+            args '-u root' // Run the container as root
+        }
+    }
     // Define the environment variables
     environment {
         // Define the Docker image name
